@@ -8,14 +8,23 @@ namespace practika___8
 {
     internal class Program
     {
+        #region 
         static Random rd = new Random();
         static int health = 0;
         static int maxHealth = 0;
         static int gold = 0;
         static int potions = 0;
         static int arrows = 0;
+        static int damege = 0;
         static int damegeMin = 10;
         static int damegeMax = 20;
+        static bool isWin = false;  
+        static int monsterHP = 0;
+        static int monsterAttack = 0;
+        static int monsterAttackMin = 8;
+        static int monsterAttackMax = 20;
+        static bool boss = false;
+        #endregion 
         static void Main(string[] args)
         {
             int roomNumber = 0;
@@ -25,16 +34,14 @@ namespace practika___8
                 roomNumber = rd.Next();
                 ProcessRoom(roomNumber);
             }
-
-
+            FightBoss();
         }
         public static void ProcessRoom(int roomNumber) // обрабатывает событие в комнате
         {
-            int monsterHP = 0;
-            int monsterAttack = 0;
             switch (roomNumber)
             {
                 case 1:
+                    Console.WriteLine($"Вы зашли в комнату с монстром у него {monsterHP = rd.Next(20, 50)}");
                     FightMonster(monsterHP, monsterAttack);
                     break;
                 case 2:
@@ -49,8 +56,6 @@ namespace practika___8
                 case 5:
                     MeetDarkMage();
                     break;
-
-
             }
         }
         public static void InitializeGame()    // базовые настройки
@@ -63,26 +68,37 @@ namespace practika___8
         }
         public static void FightMonster(int monsterHP, int monsterAttack)    // монстр
         {
-            Console.WriteLine($"Вы зашли в комнату с монстром у него {monsterHP = rd.Next(10, 40)}");
-
+            int count = 0;
             while (health >= 0 && monsterHP >= 0)
             {
                 ShowStats();
-                int damege = 0;
+                
                 Console.WriteLine("Выберите действие: (1) Меч, (2) Лук, (3) Зелье");
                 string action = Console.ReadLine();
                 switch (action)
                 {
                     case "1": // Меч 
-                        Console.WriteLine($"Вы нанесли {damege = rd.Next(damegeMin, damegeMax)}, а монстр вам {monsterAttack = rd.Next(8, 20)}");
+                        Console.WriteLine($"Вы нанесли {damege = rd.Next(damegeMin, damegeMax)}, а монстр вам {monsterAttack = rd.Next(monsterAttackMin, monsterAttackMax)}, теперь у монстра {monsterHP = monsterHP - damege}");
                         health = health - monsterAttack;
+                        if (boss == true && rd.Next(0, 4) == 4)
+                        { 
+                            Console.WriteLine($"У босса сработала особая атака он нанес {monsterAttack = rd.Next(monsterAttackMin, monsterAttackMax)}"); 
+                            health = health - monsterAttack;
+                            count++;
+                            if (count == 3)
+                            {
+                                count = 0;
+                                if (rd.Next(1, 2) == 2)
+                                    Console.WriteLine($"Босс востановил 10 HP теперь у него {monsterHP = monsterHP + 10}");
+                            }
+                        }
                         monsterHP = monsterHP - damege;
                         break;
 
                     case "2": // Лук 
                         if (arrows > 0)
                         {
-                            Console.WriteLine($"Вы нанесли {damege = rd.Next(damegeMin, damegeMax)}, а монстр вам {monsterAttack = rd.Next(1, 15)}");
+                            Console.WriteLine($"Вы нанесли {damege = rd.Next(5, 15)}, а монстр вам {monsterAttack = rd.Next(monsterAttackMin, monsterAttackMax)}, теперь у монстра {monsterHP = monsterHP - damege}");
                             health = health - monsterAttack;
                             monsterHP = monsterHP - damege;
                             arrows--;
@@ -99,8 +115,10 @@ namespace practika___8
                         break;
                 }
             }
-            if (health > 0) Console.WriteLine("Вы одалели монстра!");
-            else Console.WriteLine("Вы умерли:(");
+            if (monsterHP > 0)
+                Console.WriteLine("Вы одалели монстра!");
+            else
+            { EndGame(isWin); }
         }
         public static void OpenChest() // открытие сундука (обычного или проклятого). 
         {
@@ -187,6 +205,21 @@ namespace practika___8
         {
             Console.WriteLine($"\nВаше здоровье: {health}\n Стрелы: {arrows}\n Зелья: {potions}\n Золота: {gold}\n Максимум здоровья: {maxHealth}\n Максимум урон мечём: {damegeMax}\n Минимум урон мечём: {damegeMin}");
         }
-
+        public static void FightBoss() // битва с финальным боссом.
+        {
+            Console.WriteLine($"Вы зашли в комнату с Босом у него {monsterHP = 100}");
+            Console.WriteLine($"У вас {health} здоровья и {potions} зелий. ");
+            monsterAttackMax = 25;
+            monsterAttackMin = 15;
+            boss = true;
+            FightMonster(monsterHP, monsterAttack);
+        }
+        public static void EndGame(bool isWin) // завершение игры.
+        {
+            if (isWin == true)
+                Console.WriteLine("Поздравляю вы победили");
+            else
+                Console.WriteLine("Вы проиграли");
+        }
     }
 }
