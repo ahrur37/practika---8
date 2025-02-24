@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace practika___8
 {
@@ -23,7 +19,7 @@ namespace practika___8
         static int monsterAttack = 0;
         static int monsterAttackMin = 8;
         static int monsterAttackMax = 20;
-        static bool boss = false;
+        static bool boss = true;
         #endregion 
         static void Main(string[] args)
         {
@@ -31,7 +27,7 @@ namespace practika___8
             InitializeGame();
             for (int i = 1; i < 14; i++)
             {
-                roomNumber = rd.Next();
+                roomNumber = rd.Next(1, 5);
                 ProcessRoom(roomNumber);
             }
             FightBoss();
@@ -58,7 +54,7 @@ namespace practika___8
                     break;
             }
         }
-        public static void InitializeGame()    // базовые настройки
+        public static void InitializeGame() // базовые настройки
         {
             health = 100;
             maxHealth = 100;
@@ -66,10 +62,10 @@ namespace practika___8
             potions = 2;
             arrows = 5;
         }
-        public static void FightMonster(int monsterHP, int monsterAttack)    // монстр
+        public static void FightMonster(int monsterHP, int monsterAttack) // монстр
         {
             int count = 0;
-            while (health >= 0 && monsterHP >= 0)
+            while (health > 0 && monsterHP >= 0)
             {
                 ShowStats();
                 
@@ -116,9 +112,12 @@ namespace practika___8
                 }
             }
             if (monsterHP > 0)
+            {
                 Console.WriteLine("Вы одалели монстра!");
-            else
-            { EndGame(isWin); }
+                boss = false;    
+            }
+            if (health <= 0)
+                 EndGame(isWin); 
         }
         public static void OpenChest() // открытие сундука (обычного или проклятого). 
         {
@@ -195,7 +194,10 @@ namespace practika___8
         {
             if (potions > 0)
             {
-                health = health + 30;
+                if (maxHealth > health + 30)
+                    health = health + 30;
+                else
+                    health = maxHealth;
                 potions = potions - 1;
             }
             if (potions == 0)
@@ -208,18 +210,21 @@ namespace practika___8
         public static void FightBoss() // битва с финальным боссом.
         {
             Console.WriteLine($"Вы зашли в комнату с Босом у него {monsterHP = 100}");
-            Console.WriteLine($"У вас {health} здоровья и {potions} зелий. ");
+            boss = true;
             monsterAttackMax = 25;
             monsterAttackMin = 15;
-            boss = true;
-            FightMonster(monsterHP, monsterAttack);
+            while ( boss )
+            {
+                FightMonster(monsterHP, monsterAttack);
+            }
+            EndGame(isWin);
         }
         public static void EndGame(bool isWin) // завершение игры.
         {
             if (isWin == true)
                 Console.WriteLine("Поздравляю вы победили");
             else
-                Console.WriteLine("Вы проиграли");
+                Console.WriteLine("Вы проиграли.");
         }
     }
 }
